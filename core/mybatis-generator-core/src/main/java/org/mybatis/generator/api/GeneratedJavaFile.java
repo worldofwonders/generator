@@ -33,6 +33,9 @@ public class GeneratedJavaFile extends GeneratedFile {
     /** The java formatter. */
     private JavaFormatter javaFormatter;
 
+    //如果文件已经存在是否跳过输出
+    private boolean skipIfExists;
+
     /**
      * Default constructor.
      *
@@ -49,10 +52,33 @@ public class GeneratedJavaFile extends GeneratedFile {
             String targetProject,
             String fileEncoding,
             JavaFormatter javaFormatter) {
+        this(compilationUnit, targetProject, fileEncoding, javaFormatter, false);
+    }
+
+    /**
+     * Default constructor.
+     *
+     * @param compilationUnit
+     *            the compilation unit
+     * @param targetProject
+     *            the target project
+     * @param fileEncoding
+     *            the file encoding
+     * @param javaFormatter
+     *            the java formatter
+     * @param skipIfExists
+     *            skip output if file already exists
+     */
+    public GeneratedJavaFile(CompilationUnit compilationUnit,
+            String targetProject,
+            String fileEncoding,
+            JavaFormatter javaFormatter,
+             boolean skipIfExists) {
         super(targetProject);
         this.compilationUnit = compilationUnit;
         this.fileEncoding = fileEncoding;
         this.javaFormatter = javaFormatter;
+        this.skipIfExists = skipIfExists;
     }
 
     /**
@@ -124,5 +150,9 @@ public class GeneratedJavaFile extends GeneratedFile {
      */
     public String getFileEncoding() {
         return fileEncoding;
+    }
+
+    public boolean isSkipIfExists() {
+        return skipIfExists;
     }
 }

@@ -15,43 +15,26 @@
  */
 package org.mybatis.generator.internal.db;
 
-import static org.mybatis.generator.internal.util.JavaBeansUtil.getCamelCaseString;
-import static org.mybatis.generator.internal.util.JavaBeansUtil.getValidPropertyName;
-import static org.mybatis.generator.internal.util.StringUtility.composeFullyQualifiedTableName;
-import static org.mybatis.generator.internal.util.StringUtility.isTrue;
-import static org.mybatis.generator.internal.util.StringUtility.stringContainsSQLWildcard;
-import static org.mybatis.generator.internal.util.StringUtility.stringContainsSpace;
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
-import static org.mybatis.generator.internal.util.messages.Messages.getString;
-
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.mybatis.generator.api.FullyQualifiedTable;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.JavaTypeResolver;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.JavaReservedWords;
-import org.mybatis.generator.config.ColumnOverride;
-import org.mybatis.generator.config.Context;
-import org.mybatis.generator.config.GeneratedKey;
-import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.config.TableConfiguration;
+import org.mybatis.generator.config.*;
 import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.logging.Log;
 import org.mybatis.generator.logging.LogFactory;
+
+import java.sql.*;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.mybatis.generator.internal.util.JavaBeansUtil.getCamelCaseString;
+import static org.mybatis.generator.internal.util.JavaBeansUtil.getValidPropertyName;
+import static org.mybatis.generator.internal.util.StringUtility.*;
+import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 /**
  * @author Jeff Butler
@@ -117,6 +100,16 @@ public class DatabaseIntrospector {
         if (rs != null) {
             try {
                 rs.close();
+            } catch (SQLException e) {
+                // ignore
+            }
+        }
+    }
+
+    private void closeStatement(Statement st) {
+        if (st != null) {
+            try {
+                st.close();
             } catch (SQLException e) {
                 // ignore
             }
@@ -645,6 +638,9 @@ public class DatabaseIntrospector {
             answer.add(introspectedTable);
         }
 
+        //通过另外一种方式获取数据库表的注释
+        enhanceIntrospectedTables(answer);
+
         return answer;
     }
 
@@ -672,5 +668,80 @@ public class DatabaseIntrospector {
         } catch (SQLException e) {
             warnings.add(getString("Warning.27", e.getMessage())); //$NON-NLS-1$
         }
+    }
+
+    /**
+     * 对数据库表的注释进行获取
+     * @param answer
+     */
+    private void enhanceIntrospectedTables(List<IntrospectedTable> answer) {
+        try {
+            if (databaseMetaData.getDriverName() != null
+                && databaseMetaData.getDriverName().toLowerCase().contains("mysql")) {
+
+                String schema = databaseMetaData.getConnection().getCatalog();
+                String sql = getTableRemarkSql(schema, answer);
+                Map<String, String> remarkMap = getTableRemarkMap(
+                        databaseMetaData.getConnection(), sql);
+
+                for (IntrospectedTable introspectedTable : answer) {
+                    if (stringHasValue(introspectedTable.getRemarks())) {
+                        continue;
+                    }
+                    FullyQualifiedTable fqt = introspectedTable.getFullyQualifiedTable();
+                    introspectedTable.setRemarks(remarkMap.get(fqt.getIntrospectedTableName()));
+                }
+            }
+        } catch (SQLException e) {
+            warnings.add(getString("Warning.27", e.getMessage())); //$NON-NLS-1$
+        }
+    }
+
+    /**
+     * 生成获取表的注释的SQL语句
+     * @param schema
+     * @param answer
+     * @return
+     */
+    private String getTableRemarkSql(String schema, List<IntrospectedTable> answer) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT table_name, TABLE_COMMENT FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = '");
+        sb.append(schema);
+        sb.append("' AND table_name IN (");
+        for (IntrospectedTable introspectedTable : answer) {
+            sb.append("'").append(introspectedTable.getFullyQualifiedTable().getIntrospectedTableName()).append("',");
+        }
+        sb.setLength(sb.length() - 1);
+        sb.append(")");
+        return sb.toString();
+    }
+
+    /**
+     * 通过INFORMATION_SCHEMA.TABLES获取每张表的注释
+     * @param connection
+     * @param sql
+     * @return
+     */
+    private Map<String, String> getTableRemarkMap(Connection connection, String sql) {
+        Statement stmt = null;
+        ResultSet rs = null;
+        Map<String, String> remarkMap = new HashMap<String, String>();
+        try {
+            stmt = connection.createStatement();
+            rs = stmt.executeQuery(sql);
+            String tableName = null;
+            String comment = null;
+            while (rs.next()) {
+                tableName = rs.getString(1);
+                comment = rs.getString(2);
+                remarkMap.put(tableName, comment);
+            }
+        } catch (SQLException e) {
+            warnings.add(getString("Warning.27", e.getMessage())); //$NON-NLS-1$
+        } finally {
+            closeResultSet(rs);
+            closeStatement(stmt);
+        }
+        return remarkMap;
     }
 }

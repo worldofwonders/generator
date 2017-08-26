@@ -15,6 +15,8 @@
  */
 package org.mybatis.generator.api.dom.java;
 
+import java.util.Iterator;
+
 public class JavaDomUtils {
     /**
      * Calculates type names for writing into generated Java.  We try to
@@ -78,8 +80,19 @@ public class JavaDomUtils {
     
     private static boolean typeIsAlreadyImported(CompilationUnit compilationUnit,
             FullyQualifiedJavaType fullyQualifiedJavaType) {
-        FullyQualifiedJavaType nonGenericType =
-                new FullyQualifiedJavaType(fullyQualifiedJavaType.getFullyQualifiedNameWithoutTypeParameters());
-        return compilationUnit.getImportedTypes().contains(nonGenericType);
+//        FullyQualifiedJavaType nonGenericType =
+//                new FullyQualifiedJavaType(fullyQualifiedJavaType.getFullyQualifiedNameWithoutTypeParameters());
+//        return compilationUnit.getImportedTypes().contains(nonGenericType);
+
+        //只需要比较包名+类名 不需要泛型参与
+        Iterator<FullyQualifiedJavaType> it = compilationUnit.getImportedTypes().iterator();
+        while (it.hasNext()) {
+            if (it.next().getFullyQualifiedNameWithoutTypeParameters().equals(
+                    fullyQualifiedJavaType.getFullyQualifiedNameWithoutTypeParameters())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

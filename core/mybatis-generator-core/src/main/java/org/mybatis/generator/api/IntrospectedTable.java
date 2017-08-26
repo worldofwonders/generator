@@ -15,29 +15,16 @@
  */
 package org.mybatis.generator.api;
 
-import static org.mybatis.generator.internal.util.StringUtility.isTrue;
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import org.mybatis.generator.config.Context;
-import org.mybatis.generator.config.GeneratedKey;
-import org.mybatis.generator.config.JavaClientGeneratorConfiguration;
-import org.mybatis.generator.config.JavaModelGeneratorConfiguration;
-import org.mybatis.generator.config.ModelType;
-import org.mybatis.generator.config.PropertyHolder;
-import org.mybatis.generator.config.PropertyRegistry;
-import org.mybatis.generator.config.SqlMapGeneratorConfiguration;
-import org.mybatis.generator.config.TableConfiguration;
+import org.mybatis.generator.config.*;
 import org.mybatis.generator.internal.rules.ConditionalModelRules;
 import org.mybatis.generator.internal.rules.FlatModelRules;
 import org.mybatis.generator.internal.rules.HierarchicalModelRules;
 import org.mybatis.generator.internal.rules.Rules;
+
+import java.util.*;
+
+import static org.mybatis.generator.internal.util.StringUtility.isTrue;
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
  * Base class for all code generator implementations. This class provides many
@@ -832,7 +819,14 @@ public abstract class IntrospectedTable {
                 sb.append('.');
             }
             sb.append(fullyQualifiedTable.getDomainObjectName());
-            sb.append("Mapper"); //$NON-NLS-1$
+
+            String nameSuffix = context.getJavaClientGeneratorConfiguration()
+                    .getProperty(PropertyRegistry.MAPPER_NAME_SUFFIX);
+            if (stringHasValue(nameSuffix)) {
+                sb.append(nameSuffix);
+            } else {
+                sb.append("Mapper"); //$NON-NLS-1$
+            }
         }
         setMyBatis3JavaMapperType(sb.toString());
 

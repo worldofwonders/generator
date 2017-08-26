@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration>
+    <context id="MyContext" targetRuntime="MyBatis3" defaultModelType="flat">
+        <commentGenerator type="EXTENDED">
+            <!-- 是否去除自动生成注释中的日期 -->
+            <property name="suppressDate" value="true" />
+            <!-- 是否使用数据库备注做为java对象的注释 -->
+            <property name="addRemarkComments" value="true" />
+        </commentGenerator>
+
+        <!-- 数据库连接的信息 -->
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="jdbc:mysql://127.0.0.1:3306/db_wows?useUnicode=true&amp;characterEncoding=UTF-8"
+                        userId="root" password="123456" />
+
+        <!-- 数据库字段类型转Java字段类型转换器配置 -->
+        <javaTypeResolver type="EXTENDED" />
+
+        <!-- 数据库对象生成戚配置 -->
+        <javaModelGenerator targetPackage="com.wows.bean" targetProject="src\main\java" >
+            <property name="rootClass" value="com.wows.base.BaseObject" />
+        </javaModelGenerator>
+
+        <!-- 数据库Mapper.xml生成器配置 -->
+        <sqlMapGenerator targetPackage="mappers" targetProject="src\main\resources" />
+
+        <!-- 数据库DAO接口生成器配置 -->
+        <javaClientGenerator targetPackage="com.wows.dao" targetProject="src\main\java" type="EXTENDED">
+            <property name="rootInterface" value="com.wows.base.BaseDao" />
+            <property name="nameSuffix" value="DAO" />
+        </javaClientGenerator>
+
+        <!-- 数据库及数据表生成配置 -->
+        <table schema="db_wows" tableName="%" >
+            <!--insert之后返回新生成的id-->
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
+            <!--对象去掉表名前缀Tb-->
+            <domainObjectRenamingRule searchString="^Tb" replaceString=""/>
+        </table>
+
+    </context>
+</generatorConfiguration>
