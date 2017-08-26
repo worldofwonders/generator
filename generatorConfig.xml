@@ -10,15 +10,15 @@
             <property name="addRemarkComments" value="true" />
         </commentGenerator>
 
-        <!-- 数据库连接的信息 -->
+        <!-- 数据库连接信息 -->
         <jdbcConnection driverClass="com.mysql.jdbc.Driver"
                         connectionURL="jdbc:mysql://127.0.0.1:3306/db_wows?useUnicode=true&amp;characterEncoding=UTF-8"
                         userId="root" password="123456" />
 
-        <!-- 数据库字段类型转Java字段类型转换器配置 -->
+        <!-- 数据库字段类型与Java字段类型的转换器配置 -->
         <javaTypeResolver type="EXTENDED" />
 
-        <!-- 数据库对象生成戚配置 -->
+        <!-- 数据库对象生成器配置 -->
         <javaModelGenerator targetPackage="com.wows.bean" targetProject="src\main\java" >
             <property name="rootClass" value="com.wows.base.BaseObject" />
         </javaModelGenerator>

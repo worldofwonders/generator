@@ -1,9 +1,9 @@
-package com.wows.base;
+package org.mybatis.generator.codegen.mybatis3.javamapper.elements;
 
 import java.io.Serializable;
 
 /**
- * 全局对象基类
+ * 鍏ㄥ眬瀵硅薄鍩虹被
  * Created by brucezee on 2017/8/23.
  */
 public class BaseObject implements Serializable {
