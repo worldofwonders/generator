@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2016 the original author or authors.
+ *    Copyright 2006-2017 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
-
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
+
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
  * 
@@ -47,10 +47,10 @@ public class SelectByExampleWithoutBLOBsElementGenerator extends
 
         context.getCommentGenerator().addComment(answer);
 
-        answer.addElement(new TextElement("select")); //$NON-NLS-1$
+        answer.addElement(new TextElement("SELECT")); //$NON-NLS-1$
         XmlElement ifElement = new XmlElement("if"); //$NON-NLS-1$
         ifElement.addAttribute(new Attribute("test", "distinct")); //$NON-NLS-1$ //$NON-NLS-2$
-        ifElement.addElement(new TextElement("distinct")); //$NON-NLS-1$
+        ifElement.addElement(new TextElement("DISTINCT")); //$NON-NLS-1$
         answer.addElement(ifElement);
 
         StringBuilder sb = new StringBuilder();
@@ -58,13 +58,13 @@ public class SelectByExampleWithoutBLOBsElementGenerator extends
                 .getSelectByExampleQueryId())) {
             sb.append('\'');
             sb.append(introspectedTable.getSelectByExampleQueryId());
-            sb.append("' as QUERYID,"); //$NON-NLS-1$
+            sb.append("' AS QUERYID,"); //$NON-NLS-1$
             answer.addElement(new TextElement(sb.toString()));
         }
         answer.addElement(getBaseColumnListElement());
 
         sb.setLength(0);
-        sb.append("from "); //$NON-NLS-1$
+        sb.append("FROM "); //$NON-NLS-1$
         sb.append(introspectedTable
                 .getAliasedFullyQualifiedTableNameAtRuntime());
         answer.addElement(new TextElement(sb.toString()));
@@ -72,7 +72,7 @@ public class SelectByExampleWithoutBLOBsElementGenerator extends
 
         ifElement = new XmlElement("if"); //$NON-NLS-1$
         ifElement.addAttribute(new Attribute("test", "orderByClause != null")); //$NON-NLS-1$ //$NON-NLS-2$
-        ifElement.addElement(new TextElement("order by ${orderByClause}")); //$NON-NLS-1$
+        ifElement.addElement(new TextElement("ORDER BY ${orderByClause}")); //$NON-NLS-1$
         answer.addElement(ifElement);
 
         if (context.getPlugins()
